@@ -1,0 +1,637 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="icon" type="image/png" href="assets/logo-192.png" />
+<title>Admin Panel — Inside Birgunj</title>
+
+<link rel="dns-prefetch" href="//fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700;9..144,900&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --ink:#1c1a17;
+    --paper:#f7f3ec;
+    --paper-2:#efe8db;
+    --crimson:#7c1526;
+    --crimson-2:#a11d33;
+    --gold:#c98a2c;
+    --indigo:#22344f;
+    --line:#d8cdb8;
+    --muted:#6b6357;
+    --white:#fffdf9;
+    --green:#2f7d4f;
+    --green-bg:#e4f3ea;
+    --amber:#a3720f;
+    --amber-bg:#faefda;
+    --red:#a11d33;
+    --red-bg:#f8e6ea;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,h4{font-family:'Fraunces',serif;margin:0;font-weight:700;}
+  a{color:inherit;text-decoration:none;}
+  button{font-family:'Inter',sans-serif;}
+  .mono{font-family:'JetBrains Mono',monospace;}
+
+  /* ---------- Login screen ---------- */
+  .login-screen{
+    min-height:100vh;
+    display:flex;align-items:center;justify-content:center;
+    padding:20px;
+    background:
+      repeating-linear-gradient(90deg, var(--line) 0 10px, transparent 10px 20px) center/100% 2px no-repeat,
+      var(--paper);
+  }
+  .login-card{
+    background:var(--white);
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:36px 34px;
+    width:100%;max-width:380px;
+    box-shadow:0 10px 30px rgba(28,26,23,.08);
+  }
+  .login-brand{display:flex;align-items:center;gap:12px;margin-bottom:26px;}
+  .login-brand .seal{
+    width:44px;height:44px;border-radius:50%;overflow:hidden;flex-shrink:0;background:var(--paper-2);
+  }
+  .login-brand .seal img{width:100%;height:100%;object-fit:cover;display:block;}
+  .login-brand h1{font-size:1.3rem;line-height:1.1;}
+  .login-brand h1 .accent{color:var(--crimson);font-style:italic;}
+  .login-brand p{margin:3px 0 0;font-family:'JetBrains Mono',monospace;font-size:.65rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);}
+
+  .field{margin-bottom:16px;}
+  .field label{
+    display:block;font-family:'JetBrains Mono',monospace;font-size:.68rem;
+    letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;
+  }
+  .field input{
+    width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:4px;
+    font-size:.95rem;background:var(--paper);color:var(--ink);
+  }
+  .field input:focus{outline:2px solid var(--gold);outline-offset:1px;border-color:var(--gold);}
+
+  .login-btn{
+    width:100%;background:var(--crimson);color:var(--white);border:none;
+    padding:12px;border-radius:4px;font-weight:700;font-size:.9rem;cursor:pointer;
+    letter-spacing:.02em;transition:.15s;
+  }
+  .login-btn:hover{background:var(--crimson-2);}
+  .login-error{
+    background:var(--red-bg);color:var(--red);border:1px solid #e3b8c2;
+    padding:9px 12px;border-radius:4px;font-size:.82rem;margin-bottom:16px;display:none;
+  }
+  .login-back{display:block;text-align:center;margin-top:18px;font-size:.8rem;color:var(--muted);}
+  .login-back:hover{color:var(--crimson);}
+
+  /* ---------- Admin shell ---------- */
+  .admin-shell{display:none;min-height:100vh;}
+  .admin-shell.active{display:flex;}
+  .sidebar{
+    width:230px;flex-shrink:0;background:var(--ink);color:#cfc6b6;
+    min-height:100vh;padding:22px 0;
+    display:flex;flex-direction:column;
+  }
+  .sidebar-brand{display:flex;align-items:center;gap:10px;padding:0 20px 22px;border-bottom:1px solid #3a352d;margin-bottom:14px;}
+  .sidebar-brand .seal{width:34px;height:34px;border-radius:50%;overflow:hidden;background:var(--paper-2);flex-shrink:0;}
+  .sidebar-brand .seal img{width:100%;height:100%;object-fit:cover;}
+  .sidebar-brand span{font-family:'Fraunces',serif;font-weight:700;color:var(--white);font-size:1.05rem;}
+  .sidebar-brand span .accent{color:var(--gold);font-style:italic;}
+
+  .sidenav{list-style:none;margin:0;padding:0;flex:1;}
+  .sidenav li a{
+    display:flex;align-items:center;gap:10px;
+    padding:11px 20px;font-size:.88rem;color:#cfc6b6;
+    border-left:3px solid transparent;cursor:pointer;
+  }
+  .sidenav li a:hover{background:rgba(255,255,255,.05);color:var(--white);}
+  .sidenav li a.active{background:rgba(124,21,38,.35);border-left-color:var(--gold);color:var(--white);font-weight:600;}
+
+  .sidebar-foot{padding:16px 20px 0;border-top:1px solid #3a352d;margin-top:10px;}
+  .sidebar-foot a{display:block;font-size:.82rem;color:#cfc6b6;padding:8px 0;}
+  .sidebar-foot a:hover{color:var(--gold);}
+
+  .main{flex:1;padding:30px 34px;max-width:1100px;}
+  .main-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px;flex-wrap:wrap;gap:12px;}
+  .main-head h2{font-size:1.6rem;}
+  .main-head p{margin:4px 0 0;color:var(--muted);font-size:.88rem;}
+
+  .panel{display:none;}
+  .panel.active{display:block;}
+
+  .card-box{
+    background:var(--white);border:1px solid var(--line);border-radius:6px;
+    padding:22px;margin-bottom:20px;
+  }
+  .card-box h3{font-size:1.05rem;margin-bottom:16px;}
+
+  .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  .form-grid .full{grid-column:1/-1;}
+  .form-grid label{
+    display:block;font-family:'JetBrains Mono',monospace;font-size:.66rem;
+    letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;
+  }
+  .form-grid input, .form-grid textarea, .form-grid select{
+    width:100%;padding:10px 11px;border:1px solid var(--line);border-radius:4px;
+    font-size:.9rem;font-family:'Inter',sans-serif;background:var(--paper);color:var(--ink);
+  }
+  .form-grid textarea{resize:vertical;min-height:80px;}
+  .form-grid input:focus, .form-grid textarea:focus, .form-grid select:focus{outline:2px solid var(--gold);outline-offset:1px;border-color:var(--gold);}
+
+  .btn-primary{
+    background:var(--crimson);color:var(--white);border:none;padding:10px 20px;
+    border-radius:4px;font-weight:700;font-size:.85rem;cursor:pointer;margin-top:16px;
+  }
+  .btn-primary:hover{background:var(--crimson-2);}
+  .btn-secondary{
+    background:none;color:var(--indigo);border:1px solid var(--indigo);padding:8px 16px;
+    border-radius:4px;font-size:.82rem;cursor:pointer;
+  }
+  .btn-secondary:hover{background:var(--indigo);color:var(--white);}
+  .btn-danger{
+    background:none;color:var(--red);border:1px solid #e3b8c2;padding:6px 12px;
+    border-radius:4px;font-size:.78rem;cursor:pointer;
+  }
+  .btn-danger:hover{background:var(--red-bg);}
+
+  table{width:100%;border-collapse:collapse;font-size:.87rem;}
+  th{
+    text-align:left;font-family:'JetBrains Mono',monospace;font-size:.68rem;
+    letter-spacing:.06em;text-transform:uppercase;color:var(--crimson-2);
+    border-bottom:2px solid var(--line);padding:9px 10px;background:var(--paper-2);
+  }
+  td{padding:11px 10px;border-bottom:1px solid var(--line);vertical-align:middle;}
+  tr:last-child td{border-bottom:none;}
+  .thumb-sm{width:52px;height:40px;object-fit:cover;border-radius:3px;display:block;background:var(--paper-2);}
+  .empty-row td{text-align:center;color:var(--muted);padding:26px 10px;}
+
+  .stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:22px;}
+  .stat-box{background:var(--white);border:1px solid var(--line);border-radius:6px;padding:18px 20px;}
+  .stat-box .lbl{font-family:'JetBrains Mono',monospace;font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);}
+  .stat-box .val{font-size:1.8rem;font-family:'Fraunces',serif;font-weight:700;margin-top:4px;}
+
+  .toast{
+    position:fixed;bottom:24px;right:24px;background:var(--ink);color:var(--white);
+    padding:12px 18px;border-radius:5px;font-size:.85rem;box-shadow:0 6px 18px rgba(0,0,0,.2);
+    display:none;z-index:100;
+  }
+  .toast.show{display:block;}
+
+  @media(max-width:800px){
+    .admin-shell.active{flex-direction:column;}
+    .sidebar{width:100%;min-height:auto;}
+    .sidenav{display:flex;overflow-x:auto;}
+    .sidenav li a{white-space:nowrap;border-left:none;border-bottom:3px solid transparent;}
+    .sidenav li a.active{border-left:none;border-bottom-color:var(--gold);}
+    .main{padding:20px 16px;}
+    .form-grid{grid-template-columns:1fr;}
+    .stat-row{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+
+<!-- ===================== LOGIN SCREEN ===================== -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-card">
+    <div class="login-brand">
+      <div class="seal"><img src="assets/logo-192.png" alt="Inside Birgunj logo" onerror="this.style.display='none'"></div>
+      <div>
+        <h1>Inside <span class="accent">Birgunj</span></h1>
+        <p>Admin Panel</p>
+      </div>
+    </div>
+
+    <div class="login-error" id="loginError">Invalid username or password.</div>
+
+    <form id="loginForm">
+      <div class="field">
+        <label for="loginUser">Username</label>
+        <input type="text" id="loginUser" autocomplete="username" required />
+      </div>
+      <div class="field">
+        <label for="loginPass">Password</label>
+        <input type="password" id="loginPass" autocomplete="current-password" required />
+      </div>
+      <button type="submit" class="login-btn">Log In</button>
+    </form>
+    <a href="index.html" class="login-back">← Back to site</a>
+  </div>
+</div>
+
+<!-- ===================== ADMIN SHELL ===================== -->
+<div class="admin-shell" id="adminShell">
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="seal"><img src="assets/logo-192.png" alt="" onerror="this.style.display='none'"></div>
+      <span>Inside <span class="accent">Birgunj</span></span>
+    </div>
+    <ul class="sidenav">
+      <li><a data-panel="panel-dashboard" class="active">📊 Dashboard</a></li>
+      <li><a data-panel="panel-news">📰 News / Latest Updates</a></li>
+      <li><a data-panel="panel-gallery">🖼️ Photo Gallery</a></li>
+      <li><a data-panel="panel-video">🎬 Video</a></li>
+    </ul>
+    <div class="sidebar-foot">
+      <a href="index.html">← Back to site</a>
+      <a href="#" id="logoutBtn">⎋ Log out</a>
+    </div>
+  </aside>
+
+  <main class="main">
+
+    <!-- DASHBOARD -->
+    <section class="panel active" id="panel-dashboard">
+      <div class="main-head">
+        <div>
+          <h2>Dashboard</h2>
+          <p>Overview of published content on Inside Birgunj.</p>
+        </div>
+      </div>
+      <div class="stat-row">
+        <div class="stat-box"><div class="lbl">Published Stories</div><div class="val" id="statNews">0</div></div>
+        <div class="stat-box"><div class="lbl">Gallery Photos</div><div class="val" id="statGallery">0</div></div>
+        <div class="stat-box"><div class="lbl">Video</div><div class="val" id="statVideo">0</div></div>
+      </div>
+      <div class="card-box">
+        <h3>Recent Stories</h3>
+        <table>
+          <thead><tr><th>Title</th><th>Category</th><th>Author</th><th>Date</th></tr></thead>
+          <tbody id="dashRecentBody"><tr class="empty-row"><td colspan="4">No stories yet.</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- NEWS -->
+    <section class="panel" id="panel-news">
+      <div class="main-head">
+        <div>
+          <h2>News / Latest Updates</h2>
+          <p>Stories published here appear in the "Latest Updates" section on the site.</p>
+        </div>
+      </div>
+
+      <div class="card-box">
+        <h3 id="newsFormTitle">Add New Story</h3>
+        <form id="newsForm">
+          <input type="hidden" id="newsEditIndex" value="" />
+          <div class="form-grid">
+            <div class="full">
+              <label>Title</label>
+              <input type="text" id="newsTitle" required />
+            </div>
+            <div>
+              <label>Category</label>
+              <select id="newsCategory">
+                <option>Local Birgunj</option>
+                <option>Nepal</option>
+                <option>Business &amp; Trade</option>
+                <option>Sports</option>
+                <option>World</option>
+              </select>
+            </div>
+            <div>
+              <label>Author</label>
+              <input type="text" id="newsAuthor" placeholder="Inside Birgunj Desk" />
+            </div>
+            <div class="full">
+              <label>Description</label>
+              <textarea id="newsDescription" required></textarea>
+            </div>
+            <div class="full">
+              <label>Image URL</label>
+              <input type="text" id="newsImage" placeholder="https://..." />
+            </div>
+          </div>
+          <button type="submit" class="btn-primary" id="newsSubmitBtn">Publish Story</button>
+          <button type="button" class="btn-secondary" id="newsCancelEdit" style="display:none;margin-top:16px;margin-left:10px;">Cancel edit</button>
+        </form>
+      </div>
+
+      <div class="card-box">
+        <h3>Published Stories</h3>
+        <table>
+          <thead><tr><th></th><th>Title</th><th>Category</th><th>Date</th><th></th></tr></thead>
+          <tbody id="newsTableBody"><tr class="empty-row"><td colspan="5">No stories yet.</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- GALLERY -->
+    <section class="panel" id="panel-gallery">
+      <div class="main-head">
+        <div>
+          <h2>Photo Gallery</h2>
+          <p>Photos added here appear at the top of the site's Photo Gallery section.</p>
+        </div>
+      </div>
+
+      <div class="card-box">
+        <h3>Add Photo</h3>
+        <form id="galleryForm">
+          <div class="form-grid">
+            <div class="full">
+              <label>Image URL</label>
+              <input type="text" id="galleryImage" placeholder="https://..." required />
+            </div>
+            <div class="full">
+              <label>Caption</label>
+              <input type="text" id="galleryCaption" placeholder="e.g. Ghantaghar clock tower" />
+            </div>
+          </div>
+          <button type="submit" class="btn-primary">Add to Gallery</button>
+        </form>
+      </div>
+
+      <div class="card-box">
+        <h3>Current Photos</h3>
+        <table>
+          <thead><tr><th></th><th>Caption</th><th></th></tr></thead>
+          <tbody id="galleryTableBody"><tr class="empty-row"><td colspan="3">No photos added yet.</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- VIDEO -->
+    <section class="panel" id="panel-video">
+      <div class="main-head">
+        <div>
+          <h2>Video</h2>
+          <p>Set the embed shown in the site's Video section (YouTube/Vimeo embed URL).</p>
+        </div>
+      </div>
+
+      <div class="card-box">
+        <h3>Featured Video</h3>
+        <form id="videoForm">
+          <div class="form-grid">
+            <div class="full">
+              <label>Embed URL</label>
+              <input type="text" id="videoEmbed" placeholder="https://www.youtube.com/embed/..." />
+            </div>
+            <div class="full">
+              <label>Title (optional)</label>
+              <input type="text" id="videoTitle" />
+            </div>
+          </div>
+          <button type="submit" class="btn-primary">Save Video</button>
+          <button type="button" class="btn-secondary" id="videoClearBtn" style="margin-top:16px;margin-left:10px;">Remove Video</button>
+        </form>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  // ---------- Credentials ----------
+  var ADMIN_USER = 'insidebirgunj';
+  var ADMIN_PASS = 'insidebirgunj@np';
+  var SESSION_KEY = 'ib_admin_session';
+
+  // ---------- Helpers ----------
+  function readJSON(key, fallback){
+    try{ var raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : fallback; }
+    catch(e){ return fallback; }
+  }
+  function writeJSON(key, val){ localStorage.setItem(key, JSON.stringify(val)); }
+  function esc(str){ var d=document.createElement('div'); d.textContent = str==null?'':str; return d.innerHTML; }
+  function showToast(msg){
+    var t = document.getElementById('toast');
+    t.textContent = msg; t.classList.add('show');
+    clearTimeout(t._timer);
+    t._timer = setTimeout(function(){ t.classList.remove('show'); }, 2200);
+  }
+
+  // ---------- Auth ----------
+  function isLoggedIn(){ return sessionStorage.getItem(SESSION_KEY) === '1'; }
+  function showAdmin(){
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('adminShell').classList.add('active');
+    renderAll();
+  }
+  function showLogin(){
+    document.getElementById('adminShell').classList.remove('active');
+    document.getElementById('loginScreen').style.display = 'flex';
+  }
+  if(isLoggedIn()){ showAdmin(); }
+
+  document.getElementById('loginForm').addEventListener('submit', function(e){
+    e.preventDefault();
+    var u = document.getElementById('loginUser').value.trim();
+    var p = document.getElementById('loginPass').value;
+    var err = document.getElementById('loginError');
+    if(u === ADMIN_USER && p === ADMIN_PASS){
+      sessionStorage.setItem(SESSION_KEY, '1');
+      err.style.display = 'none';
+      showAdmin();
+    } else {
+      err.style.display = 'block';
+    }
+  });
+
+  document.getElementById('logoutBtn').addEventListener('click', function(e){
+    e.preventDefault();
+    sessionStorage.removeItem(SESSION_KEY);
+    showLogin();
+  });
+
+  // ---------- Sidebar nav ----------
+  document.querySelectorAll('.sidenav a[data-panel]').forEach(function(link){
+    link.addEventListener('click', function(){
+      document.querySelectorAll('.sidenav a').forEach(function(a){ a.classList.remove('active'); });
+      document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+      this.classList.add('active');
+      document.getElementById(this.getAttribute('data-panel')).classList.add('active');
+    });
+  });
+
+  // ---------- NEWS ----------
+  function getNews(){ return readJSON('ib_news', []); }
+  function saveNews(arr){ writeJSON('ib_news', arr); }
+
+  function renderNews(){
+    var news = getNews();
+    var body = document.getElementById('newsTableBody');
+    var dashBody = document.getElementById('dashRecentBody');
+    document.getElementById('statNews').textContent = news.length;
+
+    if(!news.length){
+      body.innerHTML = '<tr class="empty-row"><td colspan="5">No stories yet.</td></tr>';
+      dashBody.innerHTML = '<tr class="empty-row"><td colspan="4">No stories yet.</td></tr>';
+      return;
+    }
+    body.innerHTML = news.map(function(item, i){
+      var img = item.image ? '<img class="thumb-sm" src="'+esc(item.image)+'">' : '<div class="thumb-sm"></div>';
+      return '<tr>'+
+        '<td>'+img+'</td>'+
+        '<td>'+esc(item.title)+'</td>'+
+        '<td>'+esc(item.category||'News')+'</td>'+
+        '<td class="mono">'+esc(item.date||'')+'</td>'+
+        '<td style="white-space:nowrap;">'+
+          '<button class="btn-secondary" style="margin-right:6px;" onclick="editNews('+i+')">Edit</button>'+
+          '<button class="btn-danger" onclick="deleteNews('+i+')">Delete</button>'+
+        '</td>'+
+      '</tr>';
+    }).join('');
+
+    dashBody.innerHTML = news.slice(-5).reverse().map(function(item){
+      return '<tr>'+
+        '<td>'+esc(item.title)+'</td>'+
+        '<td>'+esc(item.category||'News')+'</td>'+
+        '<td>'+esc(item.author||'Inside Birgunj Desk')+'</td>'+
+        '<td class="mono">'+esc(item.date||'')+'</td>'+
+      '</tr>';
+    }).join('');
+  }
+
+  document.getElementById('newsForm').addEventListener('submit', function(e){
+    e.preventDefault();
+    var news = getNews();
+    var editIndex = document.getElementById('newsEditIndex').value;
+    var entry = {
+      title: document.getElementById('newsTitle').value.trim(),
+      category: document.getElementById('newsCategory').value,
+      author: document.getElementById('newsAuthor').value.trim() || 'Inside Birgunj Desk',
+      description: document.getElementById('newsDescription').value.trim(),
+      image: document.getElementById('newsImage').value.trim(),
+      date: new Date().toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'})
+    };
+    if(editIndex !== ''){
+      entry.date = news[editIndex].date || entry.date;
+      news[editIndex] = entry;
+      showToast('Story updated.');
+    } else {
+      news.push(entry);
+      showToast('Story published.');
+    }
+    saveNews(news);
+    resetNewsForm();
+    renderNews();
+  });
+
+  window.editNews = function(i){
+    var item = getNews()[i];
+    document.getElementById('newsEditIndex').value = i;
+    document.getElementById('newsTitle').value = item.title || '';
+    document.getElementById('newsCategory').value = item.category || 'Local Birgunj';
+    document.getElementById('newsAuthor').value = item.author || '';
+    document.getElementById('newsDescription').value = item.description || '';
+    document.getElementById('newsImage').value = item.image || '';
+    document.getElementById('newsFormTitle').textContent = 'Edit Story';
+    document.getElementById('newsSubmitBtn').textContent = 'Save Changes';
+    document.getElementById('newsCancelEdit').style.display = 'inline-block';
+    document.querySelector('[data-panel="panel-news"]').click();
+    window.scrollTo({top:0, behavior:'smooth'});
+  };
+
+  window.deleteNews = function(i){
+    if(!confirm('Delete this story?')) return;
+    var news = getNews();
+    news.splice(i, 1);
+    saveNews(news);
+    renderNews();
+    showToast('Story deleted.');
+  };
+
+  function resetNewsForm(){
+    document.getElementById('newsForm').reset();
+    document.getElementById('newsEditIndex').value = '';
+    document.getElementById('newsFormTitle').textContent = 'Add New Story';
+    document.getElementById('newsSubmitBtn').textContent = 'Publish Story';
+    document.getElementById('newsCancelEdit').style.display = 'none';
+  }
+  document.getElementById('newsCancelEdit').addEventListener('click', resetNewsForm);
+
+  // ---------- GALLERY ----------
+  function getGallery(){ return readJSON('ib_gallery', []); }
+  function saveGallery(arr){ writeJSON('ib_gallery', arr); }
+
+  function renderGallery(){
+    var gallery = getGallery();
+    var body = document.getElementById('galleryTableBody');
+    document.getElementById('statGallery').textContent = gallery.length;
+    if(!gallery.length){
+      body.innerHTML = '<tr class="empty-row"><td colspan="3">No photos added yet.</td></tr>';
+      return;
+    }
+    body.innerHTML = gallery.map(function(item, i){
+      return '<tr>'+
+        '<td><img class="thumb-sm" src="'+esc(item.image)+'"></td>'+
+        '<td>'+esc(item.caption||'')+'</td>'+
+        '<td><button class="btn-danger" onclick="deleteGalleryItem('+i+')">Delete</button></td>'+
+      '</tr>';
+    }).join('');
+  }
+
+  document.getElementById('galleryForm').addEventListener('submit', function(e){
+    e.preventDefault();
+    var gallery = getGallery();
+    gallery.push({
+      image: document.getElementById('galleryImage').value.trim(),
+      caption: document.getElementById('galleryCaption').value.trim()
+    });
+    saveGallery(gallery);
+    document.getElementById('galleryForm').reset();
+    renderGallery();
+    showToast('Photo added.');
+  });
+
+  window.deleteGalleryItem = function(i){
+    if(!confirm('Remove this photo?')) return;
+    var gallery = getGallery();
+    gallery.splice(i, 1);
+    saveGallery(gallery);
+    renderGallery();
+    showToast('Photo removed.');
+  };
+
+  // ---------- VIDEO ----------
+  function getVideo(){ return readJSON('ib_video', null); }
+  function saveVideo(v){ writeJSON('ib_video', v); }
+
+  function renderVideo(){
+    var video = getVideo();
+    document.getElementById('statVideo').textContent = video && video.embedUrl ? '1' : '0';
+    document.getElementById('videoEmbed').value = (video && video.embedUrl) || '';
+    document.getElementById('videoTitle').value = (video && video.title) || '';
+  }
+
+  document.getElementById('videoForm').addEventListener('submit', function(e){
+    e.preventDefault();
+    var embedUrl = document.getElementById('videoEmbed').value.trim();
+    var title = document.getElementById('videoTitle').value.trim();
+    if(!embedUrl){ showToast('Enter an embed URL first.'); return; }
+    saveVideo({embedUrl: embedUrl, title: title});
+    renderVideo();
+    showToast('Video saved.');
+  });
+
+  document.getElementById('videoClearBtn').addEventListener('click', function(){
+    if(!confirm('Remove the featured video?')) return;
+    localStorage.removeItem('ib_video');
+    renderVideo();
+    showToast('Video removed.');
+  });
+
+  // ---------- Init ----------
+  function renderAll(){
+    renderNews();
+    renderGallery();
+    renderVideo();
+  }
+</script>
+
+</body>
+</html>
