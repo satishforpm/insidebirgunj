@@ -1,0 +1,46 @@
+<style>
+.notification-poster {
+    max-width: 650px;
+    margin: 25px auto;
+    padding: 15px;
+    background: #ffffff;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+}
+
+.notification-poster img {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 8px;
+}
+
+.notification-poster h2 {
+    font-size: 22px;
+    margin: 15px 0 8px;
+    color: #222;
+}
+
+.notification-poster p {
+    color: #555;
+    font-size: 15px;
+    line-height: 1.6;
+}
+</style>
+
+<div class="notification-poster">
+
+    <img
+        src="/image/2084-poster.png"
+        alt="२०८४ को पोस्टर"
+    >
+
+    <h2>२०८४ को निर्वाचन पोस्टर</h2>
+
+    <p>
+        पचरौटा नगरपालिका सम्बन्धी २०८४ को निर्वाचन
+        सम्बन्धी सूचना तथा पोस्टर।
+    </p>
+
+</div>
